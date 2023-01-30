@@ -5,6 +5,12 @@ function fit = fitWithLSO( Xi, Yi)
 % parameter assessment of circular object targets for robot vision",
 % Intelligent Robots and Systems, 1999.
 %
+% x_c            - x center of ellipse
+% y_c            - y center of ellipse
+% a              - major axis a
+% b              - minor axis b
+% alpha          - angle of ellipse
+%
 % AUTHOR Sebastian Dingler <s.dingler@gmail.com>
 %        Karlsruhe Institute of Technology (KIT), Germany
 %
