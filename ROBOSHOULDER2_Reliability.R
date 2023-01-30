@@ -12,6 +12,9 @@ library(magrittr)
 library(lme4)
 library(ICC.Sample.Size)
 
+# Compute required sample size
+# calculateIccSampleSize(p=0.9,p0=0.5,k=3,alpha=0.05,tails=2,power=0.80)
+
 # Select working directories
 folder_inputs  <- "C:/Users/moissene/OneDrive - unige.ch/Article ROBOSHOULDER2/Données/Stats/input"
 folder_outputs <- "C:/Users/moissene/OneDrive - unige.ch/Article ROBOSHOULDER2/Données/Stats/output"

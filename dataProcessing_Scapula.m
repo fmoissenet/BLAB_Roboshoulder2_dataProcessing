@@ -13,11 +13,12 @@ addpath(Folder.toolbox);
 addpath(genpath(Folder.dependencies));
 
 % Load data
-scapulaList = {'RS001_L','RS001_R','RS002_L','RS002_R','RS003_L','RS004_L','RS004_R','RS005_L','RS005_R'}; % Issue with RS003_R
-unitList    = {'deg','deg','deg','mm','mm','mm','mm','mm','mm'};
+scapulaList            = {'RS001_L','RS001_R','RS002_L','RS002_R','RS003_L','RS003_R','RS004_L','RS004_R','RS005_L','RS005_R'}; % Issue with RS003_R
+unitList               = {'deg','deg','deg','mm','mm','mm','mm','mm','mm'};
 cd(Folder.data);
-kparameter  = 0;
-for iscapula = 1:9 % To be modified if the 10th is available
+kparameter             = 0;
+digitalisationDuration = [];
+for iscapula = 1:10 % To be modified if the 10th is available
     % Load file
     cd(Folder.data);
     csvFile   = ['Aruco\',scapulaList{iscapula},'_Scapula_composite.csv']; 
@@ -91,7 +92,8 @@ for iscapula = 1:9 % To be modified if the 10th is available
             pointCloud3Dfull(1:length(xlsread(csvFile,1,'BV3:CD300')*1e3),19:27) = xlsread(csvFile,1,'BV3:CD300')*1e3; % mm % Other columns are related to AC joint
             temp             = pointCloud3Dfull(:,(irater-1)*9+itrial*3-2:(irater-1)*9+itrial*3); % X, Y, Z coordinates
             pointCloud3Di    = temp(~isnan(temp(:,1)),:)';
-
+            % Digitalisation time
+            digitalisationDuration = [digitalisationDuration length(pointCloud3Di)/3]; % 3 Hz measurement
             % Express the 3D point cloud in the scapula coordinate system
             pointCloud3Di = inv(Rs)*(pointCloud3Di-Os);
             SIAai         = inv(Rs)*(SIAa-Os);
@@ -130,22 +132,22 @@ for iscapula = 1:9 % To be modified if the 10th is available
 
             % Fit a plane to the point cloud at the least square sense
             fobjPlane = planarFit(pointCloud3Di);
-            figure(1);
-            [hL,hD]   = plot(fobjPlane);
-            hold on; axis equal; grid on; box on;
-            title('3D view');
-            plot3(pointCloud3Di(1,:),pointCloud3Di(2,:),pointCloud3Di(3,:)+3,'Marker','.','Markersize',20,'Linestyle','none','Color','red');
-            plot3(SIAai(1,:),SIAai(2,:),SIAai(3,:),'Marker','.','Markersize',10,'Linestyle','none','Color','black');
-            plot3(SRSai(1,:),SRSai(2,:),SRSai(3,:),'Marker','.','Markersize',10,'Linestyle','none','Color','black');
-            plot3(SSAai(1,:),SSAai(2,:),SSAai(3,:),'Marker','.','Markersize',10,'Linestyle','none','Color','black');
-            plot3(SAAai(1,:),SAAai(2,:),SAAai(3,:),'Marker','.','Markersize',30,'Linestyle','none','Color','black');
-            plot3(SATai(1,:),SATai(2,:),SATai(3,:),'Marker','.','Markersize',10,'Linestyle','none','Color','black');
-            plot3(SAEai(1,:),SAEai(2,:),SAEai(3,:),'Marker','.','Markersize',10,'Linestyle','none','Color','black');
-            plot3(SCTai(1,:),SCTai(2,:),SCTai(3,:),'Marker','.','Markersize',10,'Linestyle','none','Color','black');
-            quiver3(Osi(1),Osi(2),Osi(3),Xsi(1),Xsi(2),Xsi(3),20,'red');
-            quiver3(Osi(1),Osi(2),Osi(3),Ysi(1),Ysi(2),Ysi(3),20,'green');
-            quiver3(Osi(1),Osi(2),Osi(3),Zsi(1),Zsi(2),Zsi(3),20,'blue');
-            patch_array3(faces,verticesai,[0.8 0.8 0.8],'none','gouraud',1);
+%             figure(1);
+%             [hL,hD]   = plot(fobjPlane);
+%             hold on; axis equal; grid on; box on;
+%             title('3D view');
+%             plot3(pointCloud3Di(1,:),pointCloud3Di(2,:),pointCloud3Di(3,:)+3,'Marker','.','Markersize',20,'Linestyle','none','Color','red');
+%             plot3(SIAai(1,:),SIAai(2,:),SIAai(3,:),'Marker','.','Markersize',10,'Linestyle','none','Color','black');
+%             plot3(SRSai(1,:),SRSai(2,:),SRSai(3,:),'Marker','.','Markersize',10,'Linestyle','none','Color','black');
+%             plot3(SSAai(1,:),SSAai(2,:),SSAai(3,:),'Marker','.','Markersize',10,'Linestyle','none','Color','black');
+%             plot3(SAAai(1,:),SAAai(2,:),SAAai(3,:),'Marker','.','Markersize',30,'Linestyle','none','Color','black');
+%             plot3(SATai(1,:),SATai(2,:),SATai(3,:),'Marker','.','Markersize',10,'Linestyle','none','Color','black');
+%             plot3(SAEai(1,:),SAEai(2,:),SAEai(3,:),'Marker','.','Markersize',10,'Linestyle','none','Color','black');
+%             plot3(SCTai(1,:),SCTai(2,:),SCTai(3,:),'Marker','.','Markersize',10,'Linestyle','none','Color','black');
+%             quiver3(Osi(1),Osi(2),Osi(3),Xsi(1),Xsi(2),Xsi(3),20,'red');
+%             quiver3(Osi(1),Osi(2),Osi(3),Ysi(1),Ysi(2),Ysi(3),20,'green');
+%             quiver3(Osi(1),Osi(2),Osi(3),Zsi(1),Zsi(2),Zsi(3),20,'blue');
+%             patch_array3(faces,verticesai,[0.8 0.8 0.8],'none','gouraud',1);
             
             % Define a plane coordinate system
             Oplane = mean(pointCloud3Di,2);
@@ -247,24 +249,24 @@ for iscapula = 1:9 % To be modified if the 10th is available
             clear Rtemp temp;
             
             % Export parameters
-%             cd(Folder.export);
-% %             close all;
-%             for iparameter = 1:9
-%                 if kparameter == 0
-%                     xlswrite(['Cartilage_scapula_glenohumeral_parameter_',num2str(iparameter),'.csv'],{'CARTILAGE'},1,'A1');
-%                     xlswrite(['Cartilage_scapula_glenohumeral_parameter_',num2str(iparameter),'.csv'],{'OPERATOR'},1,'B1');
-%                     xlswrite(['Cartilage_scapula_glenohumeral_parameter_',num2str(iparameter),'.csv'],{'DIGITALISATION'},1,'C1');
-%                     xlswrite(['Cartilage_scapula_glenohumeral_parameter_',num2str(iparameter),'.csv'],{'VALUE'},1,'D1');
-%                 end
-%                 xlswrite(['Cartilage_scapula_glenohumeral_parameter_',num2str(iparameter),'.csv'],[iscapula irater itrial Parameter(iparameter,kparameter)],1,['A',num2str(kparameter+1)]);
-%             end
+            cd(Folder.export);
+%             close all;
+            for iparameter = 1:9
+                if kparameter == 0
+                    xlswrite(['Cartilage_scapula_glenohumeral_parameter_',num2str(iparameter),'.csv'],{'CARTILAGE'},1,'A1');
+                    xlswrite(['Cartilage_scapula_glenohumeral_parameter_',num2str(iparameter),'.csv'],{'OPERATOR'},1,'B1');
+                    xlswrite(['Cartilage_scapula_glenohumeral_parameter_',num2str(iparameter),'.csv'],{'DIGITALISATION'},1,'C1');
+                    xlswrite(['Cartilage_scapula_glenohumeral_parameter_',num2str(iparameter),'.csv'],{'VALUE'},1,'D1');
+                end
+                xlswrite(['Cartilage_scapula_glenohumeral_parameter_',num2str(iparameter),'.csv'],[iscapula irater itrial Parameter(iparameter,kparameter)],1,['A',num2str(kparameter+1)]);
+            end
 
             % Clear workspace
-            clearvars -except iscapula irater itrial kparameter Folder pointCloudLabel scapulaList csvFile Os Xs Ys Zs Rs SIA SRS SAA Parameter circleRMS;
+            clearvars -except digitalisationDuration iscapula irater itrial kparameter Folder pointCloudLabel scapulaList csvFile Os Xs Ys Zs Rs faces verticesa SCTa SAJa SAEa SATa SSAa SIAa SRSa SAAa Parameter circleRMS;
             
         end
     end
 
     % Clear workspace
-    clearvars -except Folder kparameter scapulaList Parameter circleRMS;
+    clearvars -except digitalisationDuration Folder kparameter scapulaList Parameter circleRMS;
 end

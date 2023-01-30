@@ -14,10 +14,11 @@ addpath(genpath(Folder.dependencies));
 
 % Load data
 clavicleList = {'RS001_L','RS001_R','RS002_L','RS002_R','RS003_L','RS003_R','RS004_L','RS004_R','RS005_L','RS005_R'};
-unitList     = {'deg','deg','deg','mm','mm','mm','mm','mm','mm'};
+unitList               = {'deg','deg','deg','mm','mm','mm','mm','mm','mm'};
 cd(Folder.data);
-kparameter  = 0;
-for iclavicle = 2%1:10
+kparameter             = 0;
+digitalisationDuration = [];
+for iclavicle = 1:10
     % Load file
     cd(Folder.data);
     csvFile   = ['Aruco\',clavicleList{iclavicle},'_Clavicle_composite.csv']; 
@@ -91,6 +92,9 @@ for iclavicle = 2%1:10
             temp             = pointCloud3Dfull(:,(irater-1)*9+itrial*3-2:(irater-1)*9+itrial*3); % X, Y, Z coordinates
             pointCloud3Di    = temp(~isnan(temp(:,1)),:)';
 
+            % Digitalisation time
+            digitalisationDuration = [digitalisationDuration length(pointCloud3Di)/3]; % 3 Hz measurement
+
             % Express the 3D point cloud in the clavicle coordinate system
             pointCloud3Di = inv(Rc)*(pointCloud3Di-Oc);
             CAJai         = inv(Rc)*(CAJa-Oc);
@@ -119,18 +123,18 @@ for iclavicle = 2%1:10
 
             % Fit a plane to the point cloud at the least square sense
             fobjPlane = planarFit(pointCloud3Di);
-            figure(1);
-            [hL,hD]   = plot(fobjPlane);
-            hold on; axis equal; grid on; box on;
-            title('3D view');
-            plot3(pointCloud3Di(1,:),pointCloud3Di(2,:),pointCloud3Di(3,:),'Marker','.','Markersize',20,'Linestyle','none','Color','red');
-            plot3(CAJai(1,:),CAJai(2,:),CAJai(3,:),'Marker','o','Markersize',10,'Linestyle','none','Color','black');
-            plot3(CSJai(1,:),CSJai(2,:),CSJai(3,:),'Marker','o','Markersize',10,'Linestyle','none','Color','black');
-            plot3(CASai(1,:),CASai(2,:),CASai(3,:),'Marker','o','Markersize',10,'Linestyle','none','Color','black');
-            quiver3(Oci(1),Oci(2),Oci(3),Xci(1),Xci(2),Xci(3),10,'red');
-            quiver3(Oci(1),Oci(2),Oci(3),Yci(1),Yci(2),Yci(3),10,'green');
-            quiver3(Oci(1),Oci(2),Oci(3),Zci(1),Zci(2),Zci(3),10,'blue');
-            patch_array3(faces,verticesai,[0.8 0.8 0.8],'none','gouraud',1);
+%             figure(1);
+%             [hL,hD]   = plot(fobjPlane);
+%             hold on; axis equal; grid on; box on;
+%             title('3D view');
+%             plot3(pointCloud3Di(1,:),pointCloud3Di(2,:),pointCloud3Di(3,:),'Marker','.','Markersize',20,'Linestyle','none','Color','red');
+%             plot3(CAJai(1,:),CAJai(2,:),CAJai(3,:),'Marker','o','Markersize',10,'Linestyle','none','Color','black');
+%             plot3(CSJai(1,:),CSJai(2,:),CSJai(3,:),'Marker','o','Markersize',10,'Linestyle','none','Color','black');
+%             plot3(CASai(1,:),CASai(2,:),CASai(3,:),'Marker','o','Markersize',10,'Linestyle','none','Color','black');
+%             quiver3(Oci(1),Oci(2),Oci(3),Xci(1),Xci(2),Xci(3),10,'red');
+%             quiver3(Oci(1),Oci(2),Oci(3),Yci(1),Yci(2),Yci(3),10,'green');
+%             quiver3(Oci(1),Oci(2),Oci(3),Zci(1),Zci(2),Zci(3),10,'blue');
+%             patch_array3(faces,verticesai,[0.8 0.8 0.8],'none','gouraud',1);
             
             % Define a plane coordinate system
             Oplane = mean(pointCloud3Di,2);
@@ -245,13 +249,13 @@ for iclavicle = 2%1:10
 %             end
 
             % Clear workspace
-            clearvars -except iclavicle irater itrial kparameter Folder pointCloudLabel clavicleList csvFile Oc Xc Yc Zc Rc CAJa CSJa CASa verticesa vertices faces Parameter circleRMS;
+            clearvars -except digitalisationDuration iclavicle irater itrial kparameter Folder pointCloudLabel clavicleList csvFile Oc Xc Yc Zc Rc CAJa CSJa CASa verticesa vertices faces Parameter circleRMS;
             
         end
     end
 
     % Clear workspace
-    clearvars -except Folder kparameter clavicleList Parameter circleRMS;
+    clearvars -except digitalisationDuration Folder kparameter clavicleList Parameter circleRMS;
 end
 hold on;
 plot(sort(circleRMS),'red')
