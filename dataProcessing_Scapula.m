@@ -18,7 +18,7 @@ unitList               = {'deg','deg','deg','mm','mm','mm','mm','mm','mm'};
 cd(Folder.data);
 kparameter             = 0;
 digitalisationDuration = [];
-for iscapula = 1:10 % To be modified if the 10th is available
+for iscapula = 6%1:10 % To be modified if the 10th is available
     % Load file
     cd(Folder.data);
     csvFile   = ['Aruco\',scapulaList{iscapula},'_Scapula_composite.csv']; 
@@ -88,8 +88,13 @@ for iscapula = 1:10 % To be modified if the 10th is available
             disp(['Scapula ',num2str(iscapula),' - Rater ',num2str(irater),' - Trial ',num2str(itrial)]);
             pointCloud3Dfull = nan(300,3*3*3);
             pointCloud3Dfull(1:length(xlsread(csvFile,1,'AI3:AQ300')*1e3),1:9)   = xlsread(csvFile,1,'AI3:AQ300')*1e3; % mm % Other columns are related to AC joint
-            pointCloud3Dfull(1:length(xlsread(csvFile,1,'BA3:BI300')*1e3),10:18) = xlsread(csvFile,1,'BA3:BI300')*1e3; % mm % Other columns are related to AC joint
-            pointCloud3Dfull(1:length(xlsread(csvFile,1,'BV3:CD300')*1e3),19:27) = xlsread(csvFile,1,'BV3:CD300')*1e3; % mm % Other columns are related to AC joint
+            if iscapula == 6
+                pointCloud3Dfull(1:length(xlsread(csvFile,1,'AU3:BC300')*1e3),10:18) = xlsread(csvFile,1,'AU3:BC300')*1e3; % mm % Other columns are related to AC joint
+                pointCloud3Dfull(1:length(xlsread(csvFile,1,'BP3:BX300')*1e3),19:27) = xlsread(csvFile,1,'BP3:BX300')*1e3; % mm % Other columns are related to AC joint
+            else
+                pointCloud3Dfull(1:length(xlsread(csvFile,1,'BA3:BI300')*1e3),10:18) = xlsread(csvFile,1,'BA3:BI300')*1e3; % mm % Other columns are related to AC joint
+                pointCloud3Dfull(1:length(xlsread(csvFile,1,'BV3:CD300')*1e3),19:27) = xlsread(csvFile,1,'BV3:CD300')*1e3; % mm % Other columns are related to AC joint
+            end
             temp             = pointCloud3Dfull(:,(irater-1)*9+itrial*3-2:(irater-1)*9+itrial*3); % X, Y, Z coordinates
             pointCloud3Di    = temp(~isnan(temp(:,1)),:)';
             % Digitalisation time
